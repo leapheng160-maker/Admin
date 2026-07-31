@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday</title>
+<style>
+  :root{
+    --bg:#E0A4B0;
+    --text:#7C0116;
+    --rose:#c94f66;
+    --blush:#7C0116;
+    --gold:#7C0116;
+    --cream:#7C0116;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html,body{
+    height:100%;
+    width:100%;
+    overflow:hidden;
+    background:var(--bg);
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    color:var(--text);
+  }
+
+  .stage{
+    position:relative;
+    height:100vh;
+    width:100vw;
+  }
+
+  /* ---------- floating hearts ---------- */
+  .hearts{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:1;
+  }
+
+  .heart{
+    position:absolute;
+    bottom:-10%;
+    opacity:0;
+    animation-name:float-up;
+    animation-timing-function:ease-in;
+    animation-iteration-count:infinite;
+  }
+
+  .heart svg{
+    display:block;
+    filter:drop-shadow(0 0 6px rgba(232,137,154,0.35));
+  }
+
+  @keyframes float-up{
+    0%{
+      transform:translateY(0) translateX(0) rotate(0deg);
+      opacity:0;
+    }
+    8%{
+      opacity:0.9;
+    }
+    50%{
+      transform:translateY(-55vh) translateX(var(--drift,20px)) rotate(15deg);
+    }
+    92%{
+      opacity:0.7;
+    }
+    100%{
+      transform:translateY(-110vh) translateX(calc(var(--drift,20px) * -1)) rotate(-10deg);
+      opacity:0;
+    }
+  }
+
+  /* ---------- page one ---------- */
+  .page{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px;
+    z-index:2;
+  }
+
+  .eyebrow{
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:18px;
+    opacity:0.75;
+  }
+
+  .headline{
+    font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+    font-weight:800;
+    font-size:clamp(44px, 9vw, 84px);
+    line-height:1.1;
+    color:var(--text);
+    margin-bottom:8px;
+  }
+
+  .subline{
+    font-size:clamp(16px, 2.4vw, 20px);
+    color:var(--text);
+    max-width:440px;
+    line-height:1.6;
+    margin-bottom:44px;
+    font-weight:400;
+    opacity:0.9;
+  }
+
+  .cta{
+    position:relative;
+    padding:18px 44px;
+    background:var(--text);
+    color:var(--bg);
+    border:none;
+    border-radius:999px;
+    font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:0.03em;
+    cursor:pointer;
+    box-shadow:0 10px 30px rgba(124,1,22,0.25);
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .cta:hover{
+    transform:translateY(-2px) scale(1.03);
+    box-shadow:0 14px 36px rgba(124,1,22,0.35);
+  }
+
+  .cta:focus-visible{
+    outline:3px solid var(--text);
+    outline-offset:4px;
+  }
+
+  .cta:active{
+    transform:translateY(0) scale(0.98);
+  }
+
+  @media (max-width:520px){
+    .headline{font-size:clamp(42px,14vw,64px);}
+    .cta{padding:15px 34px;font-size:15px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .heart{animation:none;opacity:0.5;}
+  }
+
+  /* ---------- video pop-up overlay ---------- */
+  #video-overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.85);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:1000;
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+  }
+
+  .video-content{
+    position:relative;
+    width:90%;
+    max-width:800px;
+    aspect-ratio:16/9;
+    border:5px solid var(--text);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 0 30px rgba(124,1,22,0.5);
+    background:#000;
+  }
+
+  .video-content video{
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+    position:relative;
+    z-index:1;
+  }
+
+  .video-loader{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    background:#000;
+    z-index:2;
+    transition:opacity 0.4s ease;
+  }
+
+  .video-loader.hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+
+  .heart-loader{
+    display:flex;
+    gap:10px;
+    align-items:flex-end;
+    height:40px;
+  }
+
+  .heart-loader .mini-heart{
+    width:20px;
+    height:20px;
+    animation:heart-bounce 1s ease-in-out infinite;
+  }
+
+  .heart-loader .mini-heart:nth-child(1){ animation-delay:0s; }
+  .heart-loader .mini-heart:nth-child(2){ animation-delay:0.15s; }
+  .heart-loader .mini-heart:nth-child(3){ animation-delay:0.3s; }
+
+  .heart-loader .mini-heart svg{
+    width:100%;
+    height:100%;
+    display:block;
+    filter:drop-shadow(0 0 6px rgba(255,143,163,0.5));
+  }
+
+  @keyframes heart-bounce{
+    0%, 60%, 100%{
+      transform:translateY(0) scale(1);
+    }
+    30%{
+      transform:translateY(-16px) scale(1.15);
+    }
+  }
+
+  .video-loader span{
+    color:var(--bg);
+    font-size:14px;
+    letter-spacing:0.05em;
+    opacity:0.85;
+    animation:loader-text-pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes loader-text-pulse{
+    0%, 100%{ opacity:0.6; }
+    50%{ opacity:1; }
+  }
+
+  .close-video{
+    margin-top:25px;
+    background:var(--text);
+    color:var(--bg);
+    border:none;
+    padding:12px 36px;
+    border-radius:50px;
+    cursor:pointer;
+    font-weight:bold;
+    font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size:15px;
+    transition:0.3s;
+  }
+
+  .close-video:hover{
+    transform:scale(1.05);
+    background:var(--rose);
+  }
+
+  .overlay-note{
+    margin-top:14px;
+    font-size:14px;
+    color:var(--bg);
+    opacity:0.85;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<div class="stage">
+
+  <section class="page" id="page1">
+    <div class="eyebrow">For You</div>
+    <h1 class="headline">Happy Birthday</h1>
+    <p class="subline">My Leo man</p>
+    <button type="button" class="cta" id="goBtn">Click here babe</button>
+  </section>
+
+</div>
+
+<!-- video pop-up overlay -->
+<div id="video-overlay">
+  <div class="video-content">
+    <div class="video-loader" id="videoLoader">
+      <div class="heart-loader">
+        <div class="mini-heart">
+          <svg viewBox="0 0 32 29"><path fill="#ff8fa3" d="M16 29C16 29 0 18.5 0 8.8C0 3.9 3.9 0 8.7 0C11.8 0 14.4 1.6 16 4C17.6 1.6 20.2 0 23.3 0C28.1 0 32 3.9 32 8.8C32 18.5 16 29 16 29Z"/></svg>
+        </div>
+        <div class="mini-heart">
+          <svg viewBox="0 0 32 29"><path fill="#ff8fa3" d="M16 29C16 29 0 18.5 0 8.8C0 3.9 3.9 0 8.7 0C11.8 0 14.4 1.6 16 4C17.6 1.6 20.2 0 23.3 0C28.1 0 32 3.9 32 8.8C32 18.5 16 29 16 29Z"/></svg>
+        </div>
+        <div class="mini-heart">
+          <svg viewBox="0 0 32 29"><path fill="#ff8fa3" d="M16 29C16 29 0 18.5 0 8.8C0 3.9 3.9 0 8.7 0C11.8 0 14.4 1.6 16 4C17.6 1.6 20.2 0 23.3 0C28.1 0 32 3.9 32 8.8C32 18.5 16 29 16 29Z"/></svg>
+        </div>
+      </div>
+      <span>Loading your video...</span>
+    </div>
+    <video id="surprise-video"
+      controls
+      playsinline
+      preload="none"
+      style="width:100%;height:100%;display:block;background:#000;">
+      <source src="Admin.mp4" type="video/mp4">
+      Your browser doesn't support embedded video.
+    </video>
+  </div>
+  <button class="close-video" id="closeVideoBtn">Close ❤️</button>
+  <p class="overlay-note">Happy Birthday, I love you 💛</p>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const goBtn = document.getElementById('goBtn');
+    const overlay = document.getElementById('video-overlay');
+    const video = document.getElementById('surprise-video');
+    const closeBtn = document.getElementById('closeVideoBtn');
+    const videoLoader = document.getElementById('videoLoader');
+
+    if (video && videoLoader) {
+      video.addEventListener('loadeddata', () => {
+        videoLoader.classList.add('hidden');
+      });
+      video.addEventListener('error', () => {
+        if (videoLoader) {
+          videoLoader.querySelector('span').textContent =
+            "Couldn't load the video. Make sure video.mp4 is in the same folder as this page.";
+        }
+      });
+    }
+
+    function openVideo() {
+      if (videoLoader) videoLoader.classList.remove('hidden');
+      overlay.style.display = 'flex';
+      video.currentTime = 0;
+      video.load();
+      video.play().catch(() => {});
+    }
+
+    function closeVideo() {
+      video.pause();
+      overlay.style.display = 'none';
+      if (videoLoader) videoLoader.classList.remove('hidden');
+    }
+
+    if (goBtn) goBtn.addEventListener('click', openVideo);
+    if (closeBtn) closeBtn.addEventListener('click', closeVideo);
+
+    const container = document.getElementById('hearts');
+    if (!container) return;
+
+    const colors = ['#7C0116', '#a83048', '#c94f66'];
+    const heartSVG = (color) => `
+      <svg width="22" height="20" viewBox="0 0 32 29">
+        <path fill="${color}" d="M16 29C16 29 0 18.5 0 8.8C0 3.9 3.9 0 8.7 0C11.8 0 14.4 1.6 16 4C17.6 1.6 20.2 0 23.3 0C28.1 0 32 3.9 32 8.8C32 18.5 16 29 16 29Z"/>
+      </svg>`;
+
+    const HEART_COUNT = 26;
+
+    for (let i = 0; i < HEART_COUNT; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      const size = 14 + Math.random() * 22;
+      const left = Math.random() * 100;
+      const duration = 9 + Math.random() * 10;
+      const delay = Math.random() * 14;
+      const drift = (Math.random() * 80 - 40) + 'px';
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      heart.style.left = left + 'vw';
+      heart.style.width = size + 'px';
+      heart.style.setProperty('--drift', drift);
+      heart.style.animationDuration = duration + 's';
+      heart.style.animationDelay = delay + 's';
+      heart.innerHTML = heartSVG(color);
+
+      container.appendChild(heart);
+    }
+  });
+</script>
+
+</body>
+</html>
